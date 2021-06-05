@@ -37,9 +37,9 @@
   tags: restart_lb
 
 - name: 以轮询的方式等待l4lb服务启动
-  shell: "systemctl is-active l4lb.service"
+  shell: "systemctl status l4lb.service|grep Active"
   register: svc_status
-  until: '"active" in svc_status.stdout'
+  until: '"running" in svc_status.stdout'
   retries: 3
   delay: 3
   tags: restart_lb
@@ -72,9 +72,9 @@
   tags: restart_lb
 
 - name: 以轮询的方式等待keepalived服务启动
-  shell: "systemctl is-active keepalived.service"
+  shell: "systemctl status keepalived.service|grep Active"
   register: svc_status
-  until: '"active" in svc_status.stdout'
+  until: '"running" in svc_status.stdout'
   retries: 3
   delay: 3
   tags: restart_lb
