@@ -37,6 +37,10 @@ export kubeOvnVer=v1.5.3
 export promChartVer=12.10.6
 export traefikChartVer=9.12.3
 
+# deploy package path
+# the origin version is fixed as /etc/kubeasz
+BASE="/data/aikube-deploy"
+
 function usage() {
   echo -e "\033[33mUsage:\033[0m ezdown [options] [args]"
   cat <<EOF
@@ -147,6 +151,7 @@ EOF
 {
   "exec-opts": ["native.cgroupdriver=$CGROUP_DRIVER"],
   "registry-mirrors": [
+    "https://reg.harbor.com"
     "https://docker.mirrors.ustc.edu.cn",
     "http://hub-mirror.c.163.com"
   ],
@@ -157,7 +162,7 @@ EOF
     "max-size": "10m",
     "max-file": "3"
     },
-  "data-root": "/var/lib/docker"
+  "data-root": "/data/aikube/docker"
 }
 EOF
   else
@@ -172,7 +177,7 @@ EOF
     "max-size": "10m",
     "max-file": "3"
     },
-  "data-root": "/var/lib/docker"
+  "data-root": "/data/aikube/docker"
 }
 EOF
   fi
@@ -359,7 +364,7 @@ function start_kubeasz_docker() {
       --name kubeasz \
       --network host \
       --restart always \
-      --volume "$BASE":"$BASE" \
+      --volume "$BASE":/etc/kubeasz \
       --volume /root/.kube:/root/.kube \
       --volume /root/.ssh:/root/.ssh \
       easzlab/kubeasz:${KUBEASZ_VER} sleep 36000
@@ -373,8 +378,6 @@ function clean_container() {
 
 ### Main Lines ##################################################
 function main() {
-  BASE="/etc/kubeasz"
-
   # check if use bash shell
   readlink /proc/$$/exe|grep -q "dash" && { logger error "you should use bash shell, not sh"; exit 1; }
   # check if use with root
