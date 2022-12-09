@@ -3,7 +3,7 @@ Description=Kubernetes Kubelet
 Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
-WorkingDirectory=/var/lib/kubelet
+WorkingDirectory={{ KUBELET_ROOT_DIR }}
 {% if ansible_distribution == "Debian" and ansible_distribution_version|int >= 10 %}
 ExecStartPre=/bin/mount -o remount,rw '/sys/fs/cgroup'
 {% endif %}
@@ -28,7 +28,7 @@ ExecStartPre=/bin/mkdir -p /sys/fs/cgroup/hugetlb/system.slice
 {% endif %}
 {% endif %}
 ExecStart={{ bin_dir }}/kubelet \
-  --config=/var/lib/kubelet/config.yaml \
+  --config={{ KUBELET_ROOT_DIR }}/config.yaml \
   --container-runtime-endpoint=unix:///run/containerd/containerd.sock \
   --hostname-override={{ inventory_hostname }} \
   --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \

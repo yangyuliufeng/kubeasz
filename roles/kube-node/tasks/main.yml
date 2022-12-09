@@ -1,8 +1,8 @@
 - name: 创建kube_node 相关目录
   file: name={{ item }} state=directory
   with_items:
-  - /var/lib/kubelet
-  - /var/lib/kube-proxy
+  - "{{ KUBELET_ROOT_DIR }}"
+  - "{{ KUBE_PROXY_ROOT_DIR }}"
 
 - name: 下载 kubelet,kube-proxy 二进制和基础 cni plugins
   copy: src={{ base_dir }}/bin/{{ item }} dest={{ bin_dir }}/{{ item }} mode=0755
@@ -31,7 +31,7 @@
   set_fact: CLUSTER_DNS_SVC_IP={{ DNS_SVC_IP.stdout }}
 
 - name: 创建kubelet的配置文件
-  template: src=kubelet-config.yaml.j2 dest=/var/lib/kubelet/config.yaml
+  template: src=kubelet-config.yaml.j2 dest={{ KUBELET_ROOT_DIR }}/config.yaml
   tags: upgrade_k8s, restart_node
 
 - name: 创建kubelet的systemd unit文件
@@ -59,7 +59,7 @@
   tags: force_change_certs
 
 - name: 创建kube-proxy 配置
-  template: src=kube-proxy-config.yaml.j2 dest=/var/lib/kube-proxy/kube-proxy-config.yaml
+  template: src=kube-proxy-config.yaml.j2 dest={{ KUBE_PROXY_ROOT_DIR }}/kube-proxy-config.yaml
   tags: reload-kube-proxy, restart_node, upgrade_k8s
 
 - name: 创建kube-proxy 服务文件

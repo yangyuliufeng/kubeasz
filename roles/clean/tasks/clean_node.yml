@@ -17,8 +17,10 @@
   - name: remove files and dirs of 'kube_node' nodes
     file: name={{ item }} state=absent
     with_items:
-    - "/var/lib/kubelet/"
-    - "/var/lib/kube-proxy/"
+    - "{{ KUBELET_ROOT_DIR }}"
+    - "{{ KUBE_PROXY_ROOT_DIR }}"
+    - "/etc/containerd"
+    - "/etc/systemd/system/containerd.service"
     - "/etc/systemd/system/kube-lb.service"
     - "/etc/systemd/system/kubelet.service"
     - "/etc/systemd/system/kube-proxy.service"

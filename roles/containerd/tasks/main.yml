@@ -28,6 +28,44 @@
       template: src=config.toml.j2 dest=/etc/containerd/config.toml
       tags: upgrade
 
+    - name: Define 'harbor_hostname', a domain name
+      set_fact: harbor_hostname={{ HARBOR_DOMAIN }}
+      when: "HARBOR_DOMAIN != ''"
+
+    - name: Define 'harbor_hostname', an IP Addr
+      set_fact: harbor_hostname={{ groups['harbor'][0] }}
+      when: "HARBOR_DOMAIN == ''"
+
+    - name: 准备证书相关目录
+      file: name={{ item }} state=directory
+      with_items:
+      - "/etc/containerd/certs.d/{{ harbor_hostname }}"
+
+    - name: 创建 harbor 配置文件
+      template: src=hosts.toml.j2 dest=/etc/containerd/certs.d/{{ harbor_hostname }}/hosts.toml
+      tags: upgrade
+
+    - name: 拷贝 CA 公钥
+      template: src=ca.crt.j2 dest=/etc/containerd/certs.d/{{ harbor_hostname }}/ca.crt
+      tags: upgrade
+
+    - name: 准备证书相关目录
+      file: name={{ item }} state=directory
+      with_items:
+      - "/etc/containerd/certs.d/132.252.37.116:443"
+      - "/etc/containerd/certs.d/docker.io"
+      when: "ENABLE_MIRROR_REGISTRY == true"
+
+    - name: 创建 harbor 配置文件
+      template: src=hosts.mirror.toml.j2 dest=/etc/containerd/certs.d/132.252.37.116:443/hosts.toml
+      tags: upgrade
+      when: "ENABLE_MIRROR_REGISTRY == true"
+
+    - name: 创建 harbor 配置文件
+      template: src=hosts.mirror.toml.j2 dest=/etc/containerd/certs.d/docker.io/hosts.toml
+      tags: upgrade
+      when: "ENABLE_MIRROR_REGISTRY == true"
+
     - name: 创建systemd unit文件
       template: src=containerd.service.j2 dest=/etc/systemd/system/containerd.service
       tags: upgrade

@@ -4,9 +4,9 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 After=network.target
 
 [Service]
-WorkingDirectory=/var/lib/kube-proxy
+WorkingDirectory={{ KUBE_PROXY_ROOT_DIR }}
 ExecStart={{ bin_dir }}/kube-proxy \
-  --config=/var/lib/kube-proxy/kube-proxy-config.yaml
+  --config={{ KUBE_PROXY_ROOT_DIR }}/kube-proxy-config.yaml
 Restart=always
 RestartSec=5
 LimitNOFILE=65536
